@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { validateEmail, validatePassword } from "@/lib/validation";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -18,8 +19,24 @@ export default function SignupPage() {
     setError(null);
     setLoading(true);
 
-    const { error: signUpError, data } = await supabase.auth.signUp({
-      email,
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      setError(emailValidation.error || "Invalid email");
+      setLoading(false);
+      return;
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.error || "Invalid password");
+      setLoading(false);
+      return;
+    }
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: email.trim(),
       password,
     });
 
@@ -28,7 +45,7 @@ export default function SignupPage() {
       setLoading(false);
     } else {
       // Redirect to confirmation page with email in query params
-      router.push(`/signup/confirm?email=${encodeURIComponent(email)}`);
+      router.push(`/signup/confirm?email=${encodeURIComponent(email.trim())}`);
     }
   };
 

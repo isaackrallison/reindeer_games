@@ -12,23 +12,40 @@ export default function AuthButton() {
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user: currentUser },
-      } = await supabase.auth.getUser();
-      setUser(currentUser ? { id: currentUser.id, email: currentUser.email } : null);
-      setLoading(false);
-    };
+    let mounted = true;
 
-    getUser();
-
+    // Subscribe to auth state changes first
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       setUser(session?.user ? { id: session.user.id, email: session.user.email } : null);
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Then get initial user state
+    const getInitialUser = async () => {
+      try {
+        const {
+          data: { user: currentUser },
+        } = await supabase.auth.getUser();
+        if (mounted) {
+          setUser(currentUser ? { id: currentUser.id, email: currentUser.email } : null);
+          setLoading(false);
+        }
+      } catch (error) {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    getInitialUser();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase.auth]);
 
   const handleLogout = async () => {

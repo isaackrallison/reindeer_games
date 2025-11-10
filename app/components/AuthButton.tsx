@@ -57,7 +57,7 @@ export default function AuthButton() {
   if (loading) {
     return (
       <div className="flex items-center gap-4">
-        <div className="h-8 w-20 bg-gray-200 animate-pulse rounded"></div>
+        <div className="h-8 w-20 bg-reindeer-navy-700 animate-pulse rounded"></div>
       </div>
     );
   }
@@ -65,10 +65,10 @@ export default function AuthButton() {
   if (user) {
     return (
       <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-700">{user.email}</span>
+        <span className="text-sm text-reindeer-cream-100">{user.email}</span>
         <button
           onClick={handleLogout}
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="px-4 py-2 text-sm font-medium text-white bg-reindeer-red-600 rounded-md hover:bg-reindeer-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-reindeer-red-500 transition-colors shadow-md hover:shadow-lg"
         >
           Logout
         </button>
@@ -80,13 +80,13 @@ export default function AuthButton() {
     <div className="flex items-center gap-4">
       <Link
         href="/login"
-        className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+        className="px-4 py-2 text-sm font-medium text-reindeer-cream-100 hover:text-reindeer-cream-50 transition-colors"
       >
         Login
       </Link>
       <Link
         href="/signup"
-        className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="px-4 py-2 text-sm font-medium text-white bg-reindeer-green-600 rounded-md hover:bg-reindeer-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-reindeer-green-500 transition-colors shadow-md hover:shadow-lg"
       >
         Sign Up
       </Link>

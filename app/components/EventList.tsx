@@ -14,7 +14,7 @@ export default async function EventList() {
   if (!result.success) {
     return (
       <div className="text-center py-12">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded max-w-md mx-auto">
+        <div className="bg-reindeer-red-50 border-2 border-reindeer-red-200 text-reindeer-red-800 px-4 py-3 rounded-lg max-w-md mx-auto shadow-md">
           <p className="font-medium">Error loading events</p>
           <p className="text-sm mt-1">{result.error}</p>
         </div>
@@ -27,7 +27,9 @@ export default async function EventList() {
   if (events.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">No events yet. Be the first to add one!</p>
+        <p className="text-reindeer-navy-600 text-lg font-medium">
+          No events yet. Be the first to add one!
+        </p>
       </div>
     );
   }
@@ -37,15 +39,15 @@ export default async function EventList() {
       {events.map((event) => (
         <div
           key={event.id}
-          className="bg-white rounded-lg shadow p-6 border border-gray-200"
+          className="bg-white rounded-lg shadow-md p-6 border-2 border-reindeer-gold-200 hover:border-reindeer-gold-400 hover:shadow-xl transition-all duration-200"
         >
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-semibold text-gray-900">{event.name}</h3>
-            <time className="text-sm text-gray-500" dateTime={event.created_at}>
+            <h3 className="text-xl font-semibold text-reindeer-navy-900">{event.name}</h3>
+            <time className="text-sm text-reindeer-navy-600 font-medium" dateTime={event.created_at}>
               {formatDate(event.created_at)}
             </time>
           </div>
-          <p className="text-gray-700">{event.description}</p>
+          <p className="text-reindeer-navy-700">{event.description}</p>
         </div>
       ))}
     </div>

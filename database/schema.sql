@@ -26,6 +26,13 @@ CREATE POLICY "Authenticated users can create their own events"
   TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
+-- Policy: Authenticated users can delete their own events
+CREATE POLICY "Authenticated users can delete their own events"
+  ON public.possible_events
+  FOR DELETE
+  TO authenticated
+  USING (auth.uid() = user_id);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_possible_events_user_id ON public.possible_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_possible_events_created_at ON public.possible_events(created_at DESC);

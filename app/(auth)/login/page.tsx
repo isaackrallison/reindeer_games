@@ -99,7 +99,7 @@ function LoginContent() {
               Next steps:
             </h3>
             <ol className="list-decimal list-inside space-y-2 text-sm text-reindeer-navy-700">
-              <li>Check your email inbox (and spam folder)</li>
+              <li>Check your email inbox (and spam folder) for an email from Supabase Auth</li>
               <li>Click the magic link in the email</li>
               <li>You&apos;ll be signed in automatically</li>
             </ol>

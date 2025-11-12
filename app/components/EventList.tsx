@@ -1,5 +1,7 @@
 import { getEvents, type EventWithSuggester } from "@/app/actions/events";
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import DeleteEventButton from "./DeleteEventButton";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -10,6 +12,11 @@ function formatDate(dateString: string): string {
 }
 
 export default async function EventList() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const result = await getEvents();
 
   if (!result.success) {
@@ -68,27 +75,37 @@ export default async function EventList() {
 
   return (
     <div className="space-y-4">
-      {events.map((event: EventWithSuggester) => (
-        <div
-          key={event.id}
-          className="bg-white rounded-lg shadow-md p-6 border-2 border-reindeer-gold-200 hover:border-reindeer-gold-400 hover:shadow-xl transition-all duration-200"
-        >
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-semibold text-reindeer-navy-900">{event.name}</h3>
-            <div className="text-right">
-              <time className="text-sm text-reindeer-navy-600 font-medium block" dateTime={event.created_at}>
-                {formatDate(event.created_at)}
-              </time>
-              {event.suggester_name && (
-                <p className="text-xs text-reindeer-navy-500 mt-1">
-                  Suggested by {event.suggester_name}
-                </p>
+      {events.map((event: EventWithSuggester) => {
+        const isOwner = user && event.user_id === user.id;
+        return (
+          <div
+            key={event.id}
+            className="bg-white rounded-lg shadow-md p-6 border-2 border-reindeer-gold-200 hover:border-reindeer-gold-400 hover:shadow-xl transition-all duration-200"
+          >
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-xl font-semibold text-reindeer-navy-900">{event.name}</h3>
+              <div className="text-right">
+                <time className="text-sm text-reindeer-navy-600 font-medium block" dateTime={event.created_at}>
+                  {formatDate(event.created_at)}
+                </time>
+                {event.suggester_name && (
+                  <p className="text-xs text-reindeer-navy-500 mt-1">
+                    Suggested by {event.suggester_name}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-between items-start gap-4">
+              <p className="text-reindeer-navy-700 flex-1">{event.description}</p>
+              {isOwner && (
+                <div className="flex-shrink-0">
+                  <DeleteEventButton eventId={event.id} eventName={event.name} />
+                </div>
               )}
             </div>
           </div>
-          <p className="text-reindeer-navy-700">{event.description}</p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

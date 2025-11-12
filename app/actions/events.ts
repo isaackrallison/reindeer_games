@@ -189,3 +189,89 @@ export async function createEvent(
   }
 }
 
+export async function deleteEvent(
+  eventId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      logger.error("Failed to get user in deleteEvent", {
+        error: userError.message,
+      });
+      return { success: false, error: "Authentication failed" };
+    }
+
+    if (!user) {
+      return { success: false, error: "You must be logged in to delete events" };
+    }
+
+    if (!eventId || typeof eventId !== "string") {
+      return { success: false, error: "Event ID is required" };
+    }
+
+    // First, verify the event exists and belongs to the user
+    const { data: event, error: fetchError } = await supabase
+      .from("possible_events")
+      .select("user_id")
+      .eq("id", eventId)
+      .single();
+
+    if (fetchError || !event) {
+      logger.error("Failed to fetch event for deletion", {
+        error: fetchError?.message,
+        eventId,
+        userId: user.id,
+      });
+      return { success: false, error: "Event not found" };
+    }
+
+    if (event.user_id !== user.id) {
+      logger.error("User attempted to delete another user's event", {
+        eventId,
+        userId: user.id,
+        eventUserId: event.user_id,
+      });
+      return { success: false, error: "You can only delete your own events" };
+    }
+
+    const { error: deleteError } = await supabase
+      .from("possible_events")
+      .delete()
+      .eq("id", eventId);
+
+    if (deleteError) {
+      logger.error("Failed to delete event", {
+        error: deleteError.message,
+        eventId,
+        userId: user.id,
+      });
+      return {
+        success: false,
+        error: "Failed to delete event. Please try again later.",
+      };
+    }
+
+    logger.info("Event deleted successfully", {
+      eventId,
+      userId: user.id,
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    logger.error("Unexpected error in deleteEvent", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    return {
+      success: false,
+      error: "An unexpected error occurred. Please try again later.",
+    };
+  }
+}
+

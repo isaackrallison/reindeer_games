@@ -10,9 +10,13 @@ import {
 } from "@/lib/validation";
 import { logger } from "@/lib/logger";
 
+export interface EventWithSuggester extends PossibleEvent {
+  suggester_name?: string;
+}
+
 export async function getEvents(): Promise<{
   success: boolean;
-  data?: PossibleEvent[];
+  data?: EventWithSuggester[];
   error?: string;
 }> {
   try {
@@ -48,7 +52,51 @@ export async function getEvents(): Promise<{
       };
     }
 
-    return { success: true, data: (data as PossibleEvent[]) || [] };
+    // Get unique user IDs
+    const userIds = [...new Set((data || []).map((event) => event.user_id))];
+    const userNamesMap = new Map<string, string>();
+
+    // Fetch user names using a database function
+    // We'll create a function that can access auth.users
+    if (userIds.length > 0) {
+      try {
+        // Call a database function to get user names
+        // This function will be created in the database
+        const { data: userNamesData, error: namesError } = await supabase.rpc(
+          "get_user_names",
+          { user_ids: userIds }
+        );
+
+        if (!namesError && userNamesData) {
+          // userNamesData should be an array of { user_id, name }
+          userNamesData.forEach((item: { user_id: string; name: string }) => {
+            if (item.name) {
+              userNamesMap.set(item.user_id, item.name);
+            }
+          });
+        } else {
+          // Fallback: if function doesn't exist, try direct query
+          // We'll handle this gracefully
+          logger.error("Failed to fetch user names via RPC", {
+            error: namesError?.message,
+          });
+        }
+      } catch (err) {
+        logger.error("Error fetching user names", {
+          error: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    }
+
+    // Map events to include suggester name
+    const eventsWithSuggester: EventWithSuggester[] = (data || []).map((event) => {
+      return {
+        ...event,
+        suggester_name: userNamesMap.get(event.user_id),
+      };
+    });
+
+    return { success: true, data: eventsWithSuggester };
   } catch (error) {
     logger.error("Unexpected error in getEvents", {
       error: error instanceof Error ? error.message : "Unknown error",

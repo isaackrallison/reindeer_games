@@ -3,8 +3,33 @@ import EventList from "@/app/components/EventList";
 import EventModal from "@/app/components/EventModal";
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const code = params.code as string | undefined;
+  const error = params.error as string | undefined;
+
+  // If we have a code or error parameter, redirect to callback route
+  if (code || error) {
+    const queryString = new URLSearchParams();
+    if (code) queryString.set("code", code);
+    if (error) {
+      queryString.set("error", error);
+      if (params.error_description) {
+        queryString.set("error_description", params.error_description as string);
+      }
+      if (params.error_code) {
+        queryString.set("error_code", params.error_code as string);
+      }
+    }
+    redirect(`/auth/callback?${queryString.toString()}`);
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

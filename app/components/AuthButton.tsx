@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function AuthButton() {
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; name?: string; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
@@ -14,12 +14,22 @@ export default function AuthButton() {
   useEffect(() => {
     let mounted = true;
 
+    // Helper to extract user info
+    const getUserInfo = (authUser: { id: string; email?: string; user_metadata?: { name?: string; full_name?: string } }) => {
+      const name = authUser.user_metadata?.name || authUser.user_metadata?.full_name;
+      return {
+        id: authUser.id,
+        name: name || undefined,
+        email: authUser.email || undefined,
+      };
+    };
+
     // Subscribe to auth state changes first
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
-      setUser(session?.user ? { id: session.user.id, email: session.user.email } : null);
+      setUser(session?.user ? getUserInfo(session.user) : null);
       setLoading(false);
     });
 
@@ -30,7 +40,7 @@ export default function AuthButton() {
           data: { user: currentUser },
         } = await supabase.auth.getUser();
         if (mounted) {
-          setUser(currentUser ? { id: currentUser.id, email: currentUser.email } : null);
+          setUser(currentUser ? getUserInfo(currentUser) : null);
           setLoading(false);
         }
       } catch (error) {
@@ -63,9 +73,11 @@ export default function AuthButton() {
   }
 
   if (user) {
+    // Display name if available, otherwise fall back to email
+    const displayName = user.name || user.email || "User";
     return (
       <div className="flex items-center gap-4">
-        <span className="text-sm text-reindeer-cream-100">{user.email}</span>
+        <span className="text-sm text-reindeer-cream-100">{displayName}</span>
         <button
           onClick={handleLogout}
           className="px-4 py-2 text-sm font-medium text-white bg-reindeer-red-600 rounded-md hover:bg-reindeer-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-reindeer-red-500 transition-colors shadow-md hover:shadow-lg"

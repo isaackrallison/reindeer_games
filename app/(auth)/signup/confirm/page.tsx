@@ -42,7 +42,7 @@ function SignupConfirmContent() {
             Check your email
           </h2>
           <p className="mt-4 text-lg text-reindeer-navy-700">
-            We&apos;ve sent you a confirmation email
+            We&apos;ve sent you a magic link
             {email && (
               <span className="block mt-2 text-base font-semibold text-reindeer-navy-900">
                 {email}
@@ -57,8 +57,9 @@ function SignupConfirmContent() {
           </h3>
           <ol className="list-decimal list-inside space-y-2 text-sm text-reindeer-navy-700">
             <li>Check your email inbox (and spam folder)</li>
-            <li>Click the confirmation link in the email</li>
-            <li>Return here to sign in</li>
+            <li>Click the magic link in the email</li>
+            <li>If this is your first time, you&apos;ll be asked to enter your name</li>
+            <li>You&apos;ll be signed in automatically</li>
           </ol>
         </div>
 
@@ -69,17 +70,9 @@ function SignupConfirmContent() {
               href="/signup"
               className="font-semibold text-reindeer-green-600 hover:text-reindeer-green-700"
             >
-              try signing up again
+              try again
             </Link>
           </p>
-          <div>
-            <Link
-              href="/login"
-              className="inline-block px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-reindeer-green-600 to-reindeer-green-500 rounded-lg hover:from-reindeer-green-700 hover:to-reindeer-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-reindeer-green-500 transition-all duration-200 shadow-md hover:shadow-lg"
-            >
-              Go to Login
-            </Link>
-          </div>
         </div>
       </div>
     </div>

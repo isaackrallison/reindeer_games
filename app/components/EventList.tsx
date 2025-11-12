@@ -1,4 +1,4 @@
-import { getEvents } from "@/app/actions/events";
+import { getEvents, type EventWithSuggester } from "@/app/actions/events";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -36,16 +36,23 @@ export default async function EventList() {
 
   return (
     <div className="space-y-4">
-      {events.map((event) => (
+      {events.map((event: EventWithSuggester) => (
         <div
           key={event.id}
           className="bg-white rounded-lg shadow-md p-6 border-2 border-reindeer-gold-200 hover:border-reindeer-gold-400 hover:shadow-xl transition-all duration-200"
         >
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-xl font-semibold text-reindeer-navy-900">{event.name}</h3>
-            <time className="text-sm text-reindeer-navy-600 font-medium" dateTime={event.created_at}>
-              {formatDate(event.created_at)}
-            </time>
+            <div className="text-right">
+              <time className="text-sm text-reindeer-navy-600 font-medium block" dateTime={event.created_at}>
+                {formatDate(event.created_at)}
+              </time>
+              {event.suggester_name && (
+                <p className="text-xs text-reindeer-navy-500 mt-1">
+                  Suggested by {event.suggester_name}
+                </p>
+              )}
+            </div>
           </div>
           <p className="text-reindeer-navy-700">{event.description}</p>
         </div>

@@ -61,10 +61,14 @@ export default function EventModal() {
     };
   }, [isOpen]);
 
-  // Focus first input when modal opens
+  // Focus first input when modal opens and reset state
   useEffect(() => {
-    if (isOpen && firstInputRef.current) {
-      setTimeout(() => firstInputRef.current?.focus(), 100);
+    if (isOpen) {
+      setLoading(false);
+      setError(null);
+      if (firstInputRef.current) {
+        setTimeout(() => firstInputRef.current?.focus(), 100);
+      }
     }
   }, [isOpen]);
 
@@ -90,6 +94,7 @@ export default function EventModal() {
   const handleClose = () => {
     setIsOpen(false);
     setError(null);
+    setLoading(false);
   };
 
   if (!isOpen) {
